@@ -5,7 +5,7 @@ export default function proxy(request: NextRequest) {
   const token = request.cookies.get("billflow_token")?.value;
   const { pathname } = request.nextUrl;
 
-  // 1. Protect (app) routes: Redirect logged-out visitors to login
+  // Protect (app) routes: Redirect logged-out visitors to login
   const isProtectedRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/invoices") ||
@@ -16,7 +16,7 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // 2. Auth routes: Redirect logged-in users away from login/signup to the dashboard
+  // Auth routes: Redirect logged-in users away from login/signup to the dashboard
   const isAuthRoute = pathname === "/login" || pathname === "/signup";
 
   if (isAuthRoute && token) {

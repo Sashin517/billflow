@@ -1,9 +1,10 @@
+"use client";
+
 import { Search, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Breadcrumbs from "./Breadcrumbs";
-import UserMenu from "./UserMenu";
 
-export default function Topbar() {
+export default function Topbar({ userMenu }: { userMenu: React.ReactNode }) {
   return (
     <header className="h-20 border-b border-border bg-background flex items-center justify-between px-8 sticky top-0 z-10">
       <div className="flex-1">
@@ -25,7 +26,7 @@ export default function Topbar() {
           <span className="absolute top-0 right-0 w-2 h-2 bg-destructive rounded-full" />
         </button> */}
 
-        <UserMenu />
+        {userMenu}
       </div>
     </header>
   );

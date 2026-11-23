@@ -1,54 +1,26 @@
-"use client";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import UserMenuClient from "./UserMenuClient";
 
-import { useTransition } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, LogOut, User } from "lucide-react";
-import { logout } from "@/lib/actions/auth.actions";
+async function getCurrentUser() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("billflow_token")?.value;
+  if (!token) return null;
 
-export default function UserMenu() {
-  const [isPending, startTransition] = useTransition();
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
 
-  const handleLogout = () => {
-    startTransition(async () => {
-      await logout();
-    });
-  };
+  if (!res.ok) return null;
+  return res.json();
+}
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-3 outline-none hover:opacity-80 transition-opacity cursor-pointer">
-        <Avatar className="w-9 h-9 border border-border">
-          <AvatarImage src="https://github.com/shadcn.png" alt="Amilia Clark" />
-          <AvatarFallback>AC</AvatarFallback>
-        </Avatar>
-        <span className="font-medium text-sm hidden md:block">Amilia Clark</span>
-        <ChevronDown className="w-4 h-4 text-muted-foreground" />
-      </DropdownMenuTrigger>
+export default async function UserMenu() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
 
-      <DropdownMenuContent align="end" className="w-48 bg-card border-border">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-border" />
-        <DropdownMenuItem className="cursor-pointer focus:bg-secondary">
-          <User className="w-4 h-4 mr-2" />
-          Profile
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          disabled={isPending}
-          onSelect={handleLogout}
-          className="cursor-pointer text-red-500 [&_svg]:text-red-500 focus:bg-red-500/10 focus:text-red-500"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          {isPending ? "Logging out..." : "Logout"}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+  return <UserMenuClient user={user} />;
 }

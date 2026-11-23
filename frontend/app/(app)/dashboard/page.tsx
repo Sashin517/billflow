@@ -21,16 +21,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Select defaultValue="today">
-            <SelectTrigger className="h-11 px-4 bg-transparent border-border rounded-full w-[140px] text-foreground">
+          <Select defaultValue="Today">
+            <SelectTrigger className="data-[size=default]:h-11 px-6 bg-transparent border-border rounded-full w-[140px] text-foreground">
               <SelectValue placeholder="Filter" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="week">Week-to-date</SelectItem>
-              <SelectItem value="month">Month-to-date</SelectItem>
-              <SelectItem value="year">Year-to-date</SelectItem>
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem className="px-4 py-3" value="Today">Today</SelectItem>
+              <SelectItem className="px-4 py-3" value="Week-to-date">Week-to-date</SelectItem>
+              <SelectItem className="px-4 py-3" value="Month-to-date">Month-to-date</SelectItem>
+              <SelectItem className="px-4 py-3" value="Year-to-date">Year-to-date</SelectItem>
+              <SelectItem className="px-4 py-3" value="All">All</SelectItem>
             </SelectContent>
           </Select>
 
