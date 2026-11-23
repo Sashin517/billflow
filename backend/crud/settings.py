@@ -73,7 +73,7 @@ def get_theme(db: Session, user_id: int) -> SettingsTheme | None:
 def upsert_theme(db: Session, user_id: int, payload: ThemeUpsert) -> SettingsTheme:
     theme = get_theme(db, user_id)
     if theme:
-        for field, value in payload.model_dump().items():
+        for field, value in payload.model_dump(exclude_unset=True).items():
             setattr(theme, field, value)
     else:
         theme = SettingsTheme(**payload.model_dump(), user_id=user_id)
@@ -83,7 +83,7 @@ def upsert_theme(db: Session, user_id: int, payload: ThemeUpsert) -> SettingsThe
     return theme
 
 
-def update_logo_path(db: Session, user_id: int, public_path: str) -> SettingsTheme:
+def update_logo_path(db: Session, user_id: int, public_path: str | None) -> SettingsTheme:
     theme = get_theme(db, user_id)
     if theme:
         theme.logo_path = public_path

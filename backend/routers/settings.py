@@ -1,6 +1,3 @@
-import os
-import shutil
-import uuid
 from typing import List
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from dependencies import DbSession, CurrentUser
@@ -13,11 +10,12 @@ from schemas.settings import (
     TaxOrChargeCreate,
     TaxOrChargeOut,
 )
+from utils.r2 import compress_and_upload_logo, delete_logo_from_r2
 
 router = APIRouter(prefix="/api/settings", tags=["Settings"])
 
-ALLOWED_LOGO_TYPES = {"image/png", "image/jpeg", "image/webp", "image/svg+xml"}
-LOGO_DIR = "uploads/logos"
+ALLOWED_LOGO_TYPES = {"image/png", "image/jpeg", "image/webp"}
+MAX_LOGO_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
 # --- Business Profile ---
@@ -42,25 +40,37 @@ def upsert_theme(payload: ThemeUpsert, db: DbSession, current_user: CurrentUser)
     return settings_crud.upsert_theme(db, current_user.id, payload)
 
 
-@router.post("/logo", response_model=ThemeOut)
-def upload_logo(
+@router.post("/theme/logo", response_model=ThemeOut)
+async def upload_logo(
     db: DbSession,
     current_user: CurrentUser,
     file: UploadFile = File(...),
 ):
     if file.content_type not in ALLOWED_LOGO_TYPES:
-        raise HTTPException(status_code=400, detail="Unsupported image format")
+        raise HTTPException(
+            status_code=400, detail="Only PNG, JPG, or WebP images are allowed."
+        )
 
-    os.makedirs(LOGO_DIR, exist_ok=True)
-    ext = os.path.splitext(file.filename or "logo.png")[1] or ".png"
-    filename = f"user_{current_user.id}_{uuid.uuid4().hex}{ext}"
-    file_path = os.path.join(LOGO_DIR, filename)
+    file_bytes = await file.read()
+    if len(file_bytes) > MAX_LOGO_BYTES:
+        raise HTTPException(status_code=400, detail="File exceeds 5 MB limit.")
 
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    # Delete previous logo from R2 if one exists
+    existing_theme = settings_crud.get_theme(db, current_user.id)
+    if existing_theme and existing_theme.logo_path:
+        delete_logo_from_r2(existing_theme.logo_path)
 
-    public_path = f"/uploads/logos/{filename}"
-    return settings_crud.update_logo_path(db, current_user.id, public_path)
+    public_url = compress_and_upload_logo(file_bytes, current_user.id)
+    return settings_crud.update_logo_path(db, current_user.id, public_url)
+
+
+@router.delete("/theme/logo", response_model=ThemeOut)
+def delete_logo(db: DbSession, current_user: CurrentUser):
+    existing_theme = settings_crud.get_theme(db, current_user.id)
+    if existing_theme and existing_theme.logo_path:
+        delete_logo_from_r2(existing_theme.logo_path)
+
+    return settings_crud.update_logo_path(db, current_user.id, None)
 
 
 # --- Taxes ---
