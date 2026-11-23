@@ -100,6 +100,8 @@ export default function BusinessProfileForm({
     name: "charges",
   });
 
+  const { isDirty } = form.formState;
+
   function onSubmit(data: ProfileFormValues) {
     startTransition(async () => {
       const result = await saveBusinessProfile(data);
@@ -551,7 +553,7 @@ export default function BusinessProfileForm({
                 )}
                 <Button
                   type="submit"
-                  disabled={isPending}
+                  disabled={isPending || (hasExistingProfile && !isDirty)}
                   className="px-8 bg-primary hover:bg-primary-hover text-primary-foreground"
                 >
                   {isPending ? "Saving..." : "Save"}

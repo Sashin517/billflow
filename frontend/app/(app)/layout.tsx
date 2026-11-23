@@ -1,6 +1,7 @@
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 import UserMenu from "@/components/layout/UserMenu";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,6 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Topbar userMenu={<UserMenu/>} />
         <div className="flex-1 p-8 overflow-y-auto">
           {children}
+          <Toaster richColors position="bottom-right" />
         </div>
       </main>
     </div>
