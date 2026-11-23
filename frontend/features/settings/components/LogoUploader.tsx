@@ -74,6 +74,7 @@ export default function BusinessThemeForm({
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const localPreviewRef = useRef<string | null>(null);
 
   // Load saved theme from DB on mount if initialData was not passed by parent
   useEffect(() => {
@@ -141,18 +142,28 @@ export default function BusinessThemeForm({
   };
 
   const runLogoUpload = async (file: File): Promise<boolean> => {
+    // Create a guaranteed-working local preview URL as fallback
+    if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
+    const localUrl = URL.createObjectURL(file);
+    localPreviewRef.current = localUrl;
+
     setUploadStatus("uploading");
     setUploadProgress(15);
     setShowPreview(false);
 
     const timer = setInterval(() => {
-      setUploadProgress((prev) => (prev < 88 ? prev + 12 : prev));
-    }, 220);
+      setUploadProgress((prev) => (prev < 85 ? prev + 15 : prev));
+    }, 150);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const uploadRes = await uploadBusinessLogo(formData);
+
+      // Ensure the "uploading" state is visible for at least 350ms
+      const [uploadRes] = await Promise.all([
+        uploadBusinessLogo(formData),
+        new Promise((resolve) => setTimeout(resolve, 350)),
+      ]);
 
       clearInterval(timer);
 
@@ -163,12 +174,12 @@ export default function BusinessThemeForm({
         return false;
       }
 
-      const finalUrl = uploadRes.data?.logo_path || URL.createObjectURL(file);
+      const finalUrl = uploadRes.data?.logo_path || localUrl;
       setUploadProgress(100);
       setUploadStatus("success");
       setLogoFile(null);
 
-      // Show success bar for 800ms, then reveal the uploaded image fitted inside the square
+      // Hold green "Upload Successful!" bar for 800ms, then show fitted image preview
       previewTimerRef.current = setTimeout(() => {
         setPreviewUrl(finalUrl);
         setShowPreview(true);
@@ -200,10 +211,8 @@ export default function BusinessThemeForm({
     setUploadedFileMeta({ name: file.name, size: file.size });
     setRemoveExistingLogo(false);
 
-    // Immediately trigger upload progress and hide drag-and-drop square
-    startTransition(async () => {
-      await runLogoUpload(file);
-    });
+    // Call directly (NOT inside startTransition) so "uploading" paints immediately
+    void runLogoUpload(file);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -397,13 +406,8 @@ export default function BusinessThemeForm({
                     {uploadStatus === "error" ? (
                       <button
                         type="button"
-                        disabled={isPending}
                         onClick={() => {
-                          if (logoFile) {
-                            startTransition(async () => {
-                              await runLogoUpload(logoFile);
-                            });
-                          }
+                          if (logoFile) void runLogoUpload(logoFile);
                         }}
                         className="flex items-center gap-1 font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
                       >
@@ -433,6 +437,11 @@ export default function BusinessThemeForm({
                       <img
                         src={previewUrl}
                         alt="Company Logo Preview"
+                        onError={(e) => {
+                          if (localPreviewRef.current && e.currentTarget.src !== localPreviewRef.current) {
+                            e.currentTarget.src = localPreviewRef.current;
+                          }
+                        }}
                         className="w-full h-full object-contain rounded"
                       />
                       {isEditing && (
