@@ -8,21 +8,62 @@ from models.settings import (
 from schemas.settings import ProfileUpsert, ThemeUpsert, TaxOrChargeCreate
 
 
-def get_profile(db: Session, user_id: int) -> SettingsProfile | None:
-    return db.query(SettingsProfile).filter(SettingsProfile.user_id == user_id).first()
+def get_profile(db: Session, user_id: int) -> dict | None:
+    profile = db.query(SettingsProfile).filter(
+        SettingsProfile.user_id == user_id
+    ).first()
+    if not profile:
+        return None
+
+    taxes = list_taxes(db, user_id)
+    charges = list_charges(db, user_id)
+
+    return {
+        **profile.__dict__,
+        "taxes": taxes,
+        "charges": charges,
+    }
 
 
-def upsert_profile(db: Session, user_id: int, payload: ProfileUpsert) -> SettingsProfile:
-    profile = get_profile(db, user_id)
+def upsert_profile(db: Session, user_id: int, payload: ProfileUpsert) -> dict:
+    profile_data = payload.model_dump(exclude={"taxes", "charges"})
+
+    profile = db.query(SettingsProfile).filter(
+        SettingsProfile.user_id == user_id
+    ).first()
+
     if profile:
-        for field, value in payload.model_dump().items():
+        for field, value in profile_data.items():
             setattr(profile, field, value)
     else:
-        profile = SettingsProfile(**payload.model_dump(), user_id=user_id)
+        profile = SettingsProfile(**profile_data, user_id=user_id)
         db.add(profile)
+
+    # Sync taxes in the same transaction
+    db.query(SettingsTax).filter(SettingsTax.user_id == user_id).delete()
+    db.add_all([
+        SettingsTax(**t.model_dump(), user_id=user_id)
+        for t in payload.taxes
+    ])
+
+    # Sync charges in the same transaction
+    db.query(SettingsCharge).filter(SettingsCharge.user_id == user_id).delete()
+    db.add_all([
+        SettingsCharge(**c.model_dump(), user_id=user_id)
+        for c in payload.charges
+    ])
+
     db.commit()
     db.refresh(profile)
-    return profile
+
+    taxes = list_taxes(db, user_id)
+    charges = list_charges(db, user_id)
+
+    return {
+        **profile.__dict__,
+        "taxes": taxes,
+        "charges": charges,
+    }
 
 
 def get_theme(db: Session, user_id: int) -> SettingsTheme | None:
