@@ -23,8 +23,8 @@ s3_client = boto3.client(
 
 
 def compress_and_upload_logo(file_bytes: bytes, user_id: int) -> str:
-    if not all([R2_ENDPOINT_URL, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY]):
-        raise RuntimeError("Missing R2 credentials in backend/.env")
+    if not all([R2_ENDPOINT_URL, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, PUBLIC_URL]):
+        raise RuntimeError("Missing R2 configuration in backend/.env")
 
     img = Image.open(io.BytesIO(file_bytes))
     img.thumbnail((800, 800))
