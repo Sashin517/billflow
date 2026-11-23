@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
+  getBusinessTheme,
   saveBusinessTheme,
   uploadBusinessLogo,
   deleteBusinessLogo,
@@ -42,13 +43,14 @@ function formatFileSize(bytes: number): string {
 export default function BusinessThemeForm({
   initialData,
 }: BusinessThemeFormProps) {
-  const hasExistingTheme = Boolean(
+  const initialHasTheme = Boolean(
     initialData?.letterhead_color || initialData?.logo_path
   );
   const initialColor = initialData?.letterhead_color || "#E0A753";
   const initialLogo = initialData?.logo_path || null;
 
-  const [isEditing, setIsEditing] = useState(!hasExistingTheme);
+  const [hasExistingTheme, setHasExistingTheme] = useState(initialHasTheme);
+  const [isEditing, setIsEditing] = useState(!initialHasTheme);
   const [savedSnapshot, setSavedSnapshot] = useState({
     letterhead_color: initialColor,
     logo_path: initialLogo,
@@ -72,6 +74,39 @@ export default function BusinessThemeForm({
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load saved theme from DB on mount if initialData was not passed by parent
+  useEffect(() => {
+    if (initialData !== undefined) return;
+
+    let active = true;
+    (async () => {
+      try {
+        const data = await getBusinessTheme();
+        if (!active || !data) return;
+
+        const hasSaved = Boolean(data.letterhead_color || data.logo_path);
+        const loadedColor = data.letterhead_color || "#E0A753";
+        const loadedLogo = data.logo_path || null;
+
+        setHasExistingTheme(hasSaved);
+        setSavedSnapshot({
+          letterhead_color: loadedColor,
+          logo_path: loadedLogo,
+        });
+        setHexColor(loadedColor);
+        setPreviewUrl(loadedLogo);
+        setShowPreview(Boolean(loadedLogo));
+        setIsEditing(!hasSaved);
+      } catch {
+        // Keep editable defaults if fetch fails
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [initialData]);
 
   useEffect(() => {
     return () => {
@@ -248,6 +283,7 @@ export default function BusinessThemeForm({
           ? themeRes.data.logo_path
           : previewUrl;
 
+      setHasExistingTheme(true);
       setSavedSnapshot({
         letterhead_color: updatedColor,
         logo_path: updatedLogo,
