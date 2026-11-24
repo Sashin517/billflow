@@ -13,21 +13,22 @@ import { Button } from "@/components/ui/button";
 import KpiCard from "@/features/dashboard/components/KpiCard";
 import RecentInvoicesTable from "@/features/dashboard/components/RecentInvoicesTable";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
-  const user = await apiClient
-      .get<any>("/api/auth/me")
-      .catch(() => null);
-
-  const firstName = user.full_name?.trim().split(/\s+/)[0];
-
-  const displayName = firstName
-  ? firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
-  : user.email;
-
-  const [rawInvoices, rawClients] = await Promise.all([
+  const [user, rawInvoices, rawClients] = await Promise.all([
+    apiClient
+      .get<{ full_name?: string; email?: string }>("/api/auth/me")
+      .catch(() => null),
     apiClient.get<InvoiceOut[]>("/api/invoices/").catch(() => []),
     apiClient.get<ClientOut[]>("/api/clients").catch(() => []),
   ]);
+
+  const firstName = user?.full_name?.trim().split(/\s+/)[0];
+
+  const displayName = firstName
+    ? firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+    : user?.email || "User";
 
   const clientMap = new Map(
     rawClients.map((client) => [
