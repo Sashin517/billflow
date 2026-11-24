@@ -56,7 +56,7 @@ export default async function DashboardPage() {
     };
   });
 
-  const formattedDate = new Date().toLocaleDateString("en-US", {
+  const formattedDate = new Date().toLocaleDateString('si-LK', {
     weekday: "long",
     month: "long",
     day: "numeric",
