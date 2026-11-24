@@ -56,7 +56,8 @@ export default async function DashboardPage() {
     };
   });
 
-  const formattedDate = new Date().toLocaleDateString('si-LK', {
+  const formattedDate = new Date().toLocaleDateString("en-US", {
+    timeZone: "Asia/Colombo",
     weekday: "long",
     month: "long",
     day: "numeric",
