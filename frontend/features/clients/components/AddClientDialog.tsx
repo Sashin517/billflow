@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +22,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+import { createClient } from "@/lib/actions/client.actions";
+
 
 // Form Validation Schema
 const clientSchema = z.object({
@@ -59,12 +69,20 @@ export default function AddClientDialog() {
     },
   });
 
+  const [isPending, startTransition] = useTransition();
+
   const onSubmit = (data: ClientFormValues) => {
-    console.log("New Client Data:", data);
-    // API Call goes here...
-    
-    setOpen(false);
-    form.reset();
+    startTransition(async () => {
+      const res = await createClient(data);
+      if (!res.success) {
+        toast.error(res.error || "Failed to save client.");
+        return;
+      }
+
+      toast.success("Client added successfully.");
+      setOpen(false);
+      form.reset();
+    });
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -78,7 +96,7 @@ export default function AddClientDialog() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button className="bg-primary hover:bg-primary-hover text-primary-foreground px-6 h-11 rounded-md text-sm font-medium" />
+          <Button className="bg-primary hover:bg-primary-hover text-primary-foreground px-6 h-11 rounded-full text-sm font-medium" />
         }
       >
         <Plus className="w-4 h-4 mr-2" />
@@ -113,7 +131,7 @@ export default function AddClientDialog() {
                     <FormItem className="space-y-1">
                       <FormLabel className="text-muted-foreground font-normal">Company Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Kandy Wholesale" className="h-9.5 px-3 bg-input" {...field} />
+                        <Input placeholder="Kandy Wholesale" className="h-9.5 px-3 !bg-input" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -128,7 +146,7 @@ export default function AddClientDialog() {
                       <FormItem className="space-y-1">
                         <FormLabel className="text-muted-foreground font-normal">Contact Person</FormLabel>
                         <FormControl>
-                          <Input placeholder="Sycilia Dias" className="h-9.5 px-3 bg-input" {...field} />
+                          <Input placeholder="Sycilia Dias" className="h-9.5 px-3 !bg-input" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -140,7 +158,7 @@ export default function AddClientDialog() {
                       <FormItem className="space-y-1">
                         <FormLabel className="text-muted-foreground font-normal">Position</FormLabel>
                         <FormControl>
-                          <Input placeholder="Manager" className="h-9.5 px-3 bg-input" {...field} />
+                          <Input placeholder="Manager" className="h-9.5 px-3 !bg-input" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -155,7 +173,7 @@ export default function AddClientDialog() {
                       <FormItem className="space-y-1">
                         <FormLabel className="text-muted-foreground font-normal">Email Address</FormLabel>
                         <FormControl>
-                          <Input placeholder="Email Address" className="h-9.5 px-3 bg-input" {...field} />
+                          <Input placeholder="Email Address" className="h-9.5 px-3 !bg-input" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -168,7 +186,7 @@ export default function AddClientDialog() {
                       <FormItem className="space-y-1">
                         <FormLabel className="text-muted-foreground font-normal">Contact Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="011-XXXXXXX" className="h-9.5 px-3 bg-input" {...field} />
+                          <Input placeholder="011-XXXXXXX" className="h-9.5 px-3 !bg-input" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -187,7 +205,7 @@ export default function AddClientDialog() {
                     <FormItem className="space-y-1">
                       <FormLabel className="text-muted-foreground font-normal">Street Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="Street Address..." className="h-9.5 px-3 bg-input" {...field} />
+                        <Input placeholder="Street Address..." className="h-9.5 px-3 !bg-input" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -201,7 +219,7 @@ export default function AddClientDialog() {
                       <FormItem className="space-y-1">
                         <FormLabel className="text-muted-foreground font-normal">City</FormLabel>
                         <FormControl>
-                          <Input placeholder="City" className="h-9.5 px-3 bg-input" {...field} />
+                          <Input placeholder="City" className="h-9.5 px-3 !bg-input" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -213,13 +231,12 @@ export default function AddClientDialog() {
                       <FormItem className="space-y-1">
                         <FormLabel className="text-muted-foreground font-normal">State/Province</FormLabel>
                         <FormControl>
-                          <Input placeholder="State/Province" className="h-9.5 px-3 bg-input" {...field} />
+                          <Input placeholder="State/Province" className="h-9.5 px-3 !bg-input" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
                   />
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -228,7 +245,7 @@ export default function AddClientDialog() {
                       <FormItem className="space-y-1">
                         <FormLabel className="text-muted-foreground font-normal">Postal Code</FormLabel>
                         <FormControl>
-                          <Input placeholder="11500" className="h-9.5 px-3 bg-input" {...field} />
+                          <Input placeholder="11500" className="h-9.5 px-3 !bg-input" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -238,10 +255,30 @@ export default function AddClientDialog() {
                     name="country"
                     render={({ field }) => (
                       <FormItem className="space-y-1">
-                        <FormLabel className="text-muted-foreground font-normal">Country</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Sri Lanka" className="h-9.5 px-3 bg-input" {...field} />
-                        </FormControl>
+                        <FormLabel className="text-muted-foreground font-normal">
+                          Country
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full !h-9.5 px-3 !bg-input border-input text-sm">
+                              <SelectValue placeholder="Select Country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem className="px-4 py-3" value="LK">
+                              Sri Lanka
+                            </SelectItem>
+                            <SelectItem className="px-4 py-3" value="US">
+                              United States
+                            </SelectItem>
+                            <SelectItem className="px-4 py-3" value="UK">
+                              United Kingdom
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </FormItem>
                     )}
                   />
@@ -251,19 +288,21 @@ export default function AddClientDialog() {
 
             {/* Footer Action Buttons */}
             <div className="px-6 py-4 border-t border-border/50 flex justify-end gap-3 bg-card">
-              <Button 
-                type="button" 
-                variant="ghost" 
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={isPending}
                 onClick={() => handleOpenChange(false)}
                 className="text-foreground hover:bg-secondary hover:text-foreground"
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
+                disabled={isPending}
                 className="bg-primary hover:bg-primary-hover text-primary-foreground font-medium"
               >
-                Save Client
+                {isPending ? "Saving..." : "Save Client"}
               </Button>
             </div>
 

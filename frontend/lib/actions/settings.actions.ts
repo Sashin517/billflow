@@ -1,46 +1,25 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { apiClient } from "@/lib/api/fetcher";
+import { getSessionToken } from "@/lib/session";
 import { type ProfileFormValues } from "@/lib/validations/settings";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-async function getAuthHeaders() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("billflow_token")?.value;
-  if (!token) throw new Error("Unauthorized: Please log in again.");
-
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-}
-
-function formatFastApiError(err: any, fallback: string): string {
-  if (!err?.detail) return fallback;
-  if (typeof err.detail === "string") return err.detail;
-  if (Array.isArray(err.detail)) {
-    return err.detail
-      .map((e: any) => `${e.loc?.slice(1).join(".") || "field"}: ${e.msg}`)
-      .join(", ");
-  }
-  return fallback;
-}
+const FASTAPI_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 // ==========================================
 // 1. BUSINESS PROFILE + TAXES + CHARGES
 // ==========================================
 
 export async function getBusinessProfile() {
-  const headers = await getAuthHeaders();
-  const res = await fetch(`${API_URL}/api/settings/profile`, {
-    headers,
-    cache: "no-store",
-  });
-
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error("Failed to load business profile");
-  return res.json();
+  try {
+    return await apiClient.get<any>("/api/settings/profile");
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("404")) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 /**
@@ -48,9 +27,6 @@ export async function getBusinessProfile() {
  */
 export async function saveBusinessProfile(data: ProfileFormValues) {
   try {
-    const headers = await getAuthHeaders();
-
-    // Map frontend camelCase -> PostgreSQL/FastAPI snake_case
     const payload = {
       business_name: data.propertyName,
       street_address: data.streetAddress || null,
@@ -58,8 +34,6 @@ export async function saveBusinessProfile(data: ProfileFormValues) {
       state_province: data.stateProvince || null,
       postal_code: data.postalCode || null,
       country: data.country || null,
-      // Requires FastAPI ProfileUpsert to use `contact_phones: List[PhoneItem]`
-      // (If FastAPI still uses `List[str]`, add `.map((p) => p.number)` at the end)
       contact_phones: data.phones.filter((p) => p.number.trim() !== ""),
       email: data.email || null,
       website: data.website || null,
@@ -82,63 +56,40 @@ export async function saveBusinessProfile(data: ProfileFormValues) {
         })),
     };
 
-    const res = await fetch(`${API_URL}/api/settings/profile`, {
-      method: "PUT",
-      headers: {
-        ...headers,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: formatFastApiError(err, "Failed to save profile"),
-      };
-    }
-
-    const updated = await res.json();
+    const updated = await apiClient.put<any>("/api/settings/profile", payload);
     revalidatePath("/settings/profile");
     return { success: true, data: updated };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unexpected error",
+      error: error instanceof Error ? error.message : "Failed to save profile",
     };
   }
 }
 
 export async function deleteTaxRule(taxId: number) {
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_URL}/api/settings/taxes/${taxId}`, {
-      method: "DELETE",
-      headers,
-    });
-
-    if (!res.ok) return { success: false, error: "Failed to delete tax rule" };
+    await apiClient.delete<void>(`/api/settings/taxes/${taxId}`);
     revalidatePath("/settings/profile");
     return { success: true };
   } catch (error) {
-    return { success: false, error: "Unexpected error deleting tax rule" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete tax rule",
+    };
   }
 }
 
 export async function deleteChargeRule(chargeId: number) {
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_URL}/api/settings/charges/${chargeId}`, {
-      method: "DELETE",
-      headers,
-    });
-
-    if (!res.ok) return { success: false, error: "Failed to delete charge rule" };
+    await apiClient.delete<void>(`/api/settings/charges/${chargeId}`);
     revalidatePath("/settings/profile");
     return { success: true };
   } catch (error) {
-    return { success: false, error: "Unexpected error deleting charge rule" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete charge rule",
+    };
   }
 }
 
@@ -147,15 +98,14 @@ export async function deleteChargeRule(chargeId: number) {
 // ==========================================
 
 export async function getBusinessTheme() {
-  const headers = await getAuthHeaders();
-  const res = await fetch(`${API_URL}/api/settings/theme`, {
-    headers,
-    cache: "no-store",
-  });
-
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error("Failed to load theme settings");
-  return res.json();
+  try {
+    return await apiClient.get<any>("/api/settings/theme");
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("404")) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 /**
@@ -166,37 +116,20 @@ export async function saveBusinessTheme(payload: {
   dark_mode?: boolean;
 }) {
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_URL}/api/settings/theme`, {
-      method: "PUT",
-      headers: {
-        ...headers,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: formatFastApiError(err, "Failed to save theme"),
-      };
-    }
-
-    const updated = await res.json();
+    const updated = await apiClient.put<any>("/api/settings/theme", payload);
     revalidatePath("/settings/theme");
     return { success: true, data: updated };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unexpected error",
+      error: error instanceof Error ? error.message : "Failed to save theme",
     };
   }
 }
 
 /**
  * Uploads logo file to FastAPI -> Object Storage (R2) -> saves URL in settings_theme.logo_path
+ * Uses getSessionToken() directly because FormData must not be JSON-stringified.
  */
 export async function uploadBusinessLogo(formData: FormData) {
   try {
@@ -210,22 +143,23 @@ export async function uploadBusinessLogo(formData: FormData) {
       return { success: false, error: "Only PNG, JPG, or WebP images are allowed" };
     }
 
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_URL}/api/settings/theme/logo`, {
+    const token = await getSessionToken();
+    const res = await fetch(`${FASTAPI_URL}/api/settings/theme/logo`, {
       method: "POST",
-      headers,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,
+      cache: "no-store",
     });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       return {
         success: false,
-        error: formatFastApiError(err, "Failed to upload logo"),
+        error: err.detail || `API Error: ${res.status}`,
       };
     }
 
-    const data = await res.json(); // { logo_path: "https://..." }
+    const data = await res.json();
     revalidatePath("/settings/theme");
     return { success: true, data };
   } catch (error) {
@@ -241,16 +175,13 @@ export async function uploadBusinessLogo(formData: FormData) {
  */
 export async function deleteBusinessLogo() {
   try {
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_URL}/api/settings/theme/logo`, {
-      method: "DELETE",
-      headers,
-    });
-
-    if (!res.ok) return { success: false, error: "Failed to delete logo" };
+    await apiClient.delete<any>("/api/settings/theme/logo");
     revalidatePath("/settings/theme");
     return { success: true };
   } catch (error) {
-    return { success: false, error: "Unexpected error deleting logo" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete logo",
+    };
   }
 }

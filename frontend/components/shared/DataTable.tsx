@@ -7,18 +7,19 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import Pagination from "@/components/shared/Pagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  pageSize?: number;
 }
 
 export default function DataTable<TData, TValue>({
   columns,
   data,
+  pageSize = 9,
 }: DataTableProps<TData, TValue>) {
-  
   const table = useReactTable({
     data,
     columns,
@@ -26,7 +27,7 @@ export default function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
       pagination: {
-        pageSize: 7, 
+        pageSize,
       },
     },
   });
@@ -35,13 +36,15 @@ export default function DataTable<TData, TValue>({
     <div className="w-full flex flex-col">
       <div className="w-full overflow-x-auto">
         <table className="w-full text-sm text-left">
-          
           <thead className="text-muted-foreground font-medium">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-border">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <th key={header.id} className="py-4 px-6 font-medium whitespace-nowrap">
+                    <th
+                      key={header.id}
+                      className="py-4 px-6 font-medium whitespace-nowrap"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -64,7 +67,10 @@ export default function DataTable<TData, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="py-4 px-6 whitespace-nowrap">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -79,6 +85,12 @@ export default function DataTable<TData, TValue>({
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={table.getState().pagination.pageIndex + 1}
+        totalPages={table.getPageCount()}
+        onPageChange={(page) => table.setPageIndex(page - 1)}
+      />
     </div>
   );
 }
