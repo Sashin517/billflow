@@ -7,6 +7,7 @@ export type RecentInvoice = {
   company: string;
   clientName: string;
   date: string;
+  dueDate: string;
   amount: string;
   status: "Pending" | "Paid" | "Draft" | "Overdue";
 };
@@ -31,6 +32,11 @@ export const recentInvoicesColumns: ColumnDef<RecentInvoice>[] = [
     accessorKey: "date",
     header: "Issue Date/Time",
     cell: ({ row }) => <span className="text-muted-foreground">{row.original.date}</span>,
+  },
+  {
+    accessorKey: "dueDate",
+    header: "Due Date",
+    cell: ({ row }) => <span className="text-muted-foreground">{row.original.dueDate}</span>,
   },
   {
     accessorKey: "amount",
@@ -67,14 +73,4 @@ export const recentInvoicesColumns: ColumnDef<RecentInvoice>[] = [
       </div>
     ),
   },
-];
-
-export const recentInvoicesData: RecentInvoice[] = [
-  { id: "5345313354", company: "Kandy Wholesale", clientName: "Amaya Fernando", date: "05 June 2026, 11.54 am", amount: "Rs. 10000.00", status: "Pending" },
-  { id: "5345313355", company: "Kandy Wholesale", clientName: "Amaya Fernando", date: "05 June 2026, 11.54 am", amount: "Rs. 5000.00", status: "Paid" },
-  { id: "5345313356", company: "Kandy Wholesale", clientName: "Amaya Fernando", date: "05 June 2026, 11.54 am", amount: "Rs. 0.00", status: "Draft" },
-  { id: "5345313357", company: "Kandy Wholesale", clientName: "Amaya Fernando", date: "05 June 2026, 11.54 am", amount: "Rs. 0.00", status: "Paid" },
-  { id: "5345313358", company: "Kandy Wholesale", clientName: "Amaya Fernando", date: "05 June 2026, 11.54 am", amount: "Rs. 0.00", status: "Paid" },
-  { id: "5345313359", company: "Kandy Wholesale", clientName: "Amaya Fernando", date: "05 June 2026, 11.54 am", amount: "Rs. 0.00", status: "Pending" },
-  { id: "5345313360", company: "Kandy Wholesale", clientName: "Amaya Fernando", date: "05 June 2026, 11.54 am", amount: "Rs. 0.00", status: "Overdue" },
 ];

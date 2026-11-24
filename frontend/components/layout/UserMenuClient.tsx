@@ -16,7 +16,7 @@ import { logout } from "@/lib/actions/auth.actions";
 
 interface UserMenuClientProps {
   user: {
-    name?: string | null;
+    full_name?: string | null;
     email: string;
     avatar_url?: string | null;
   };
@@ -25,9 +25,14 @@ interface UserMenuClientProps {
 export default function UserMenuClient({ user }: UserMenuClientProps) {
   const [isPending, startTransition] = useTransition();
 
-  const displayName = user.name || user.email;
-  const initials = displayName
-    .split(" ")
+  const firstName = user.full_name?.trim().split(/\s+/)[0];
+
+  const displayName = firstName
+    ? firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+    : user.email;
+
+  const initials = (user.full_name?.trim() || user.email)
+    .split(/\s+/)
     .map((n) => n[0])
     .join("")
     .toUpperCase()

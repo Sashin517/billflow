@@ -1,23 +1,75 @@
-"use client";
-
+import { apiClient } from "@/lib/api/fetcher";
+import { type InvoiceOut } from "@/lib/actions/invoice.actions";
+import { type ClientOut } from "@/lib/actions/client.actions";
 import Link from "next/link";
-import { 
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import KpiCard from "@/features/dashboard/components/KpiCard";
-import DataTable from "@/components/shared/DataTable"; // Your existing table component
-import { recentInvoicesColumns, recentInvoicesData } from "@/features/dashboard/data/recent-invoices";
+import RecentInvoicesTable from "@/features/dashboard/components/RecentInvoicesTable";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const user = await apiClient
+      .get<any>("/api/auth/me")
+      .catch(() => null);
+
+  const firstName = user.full_name?.trim().split(/\s+/)[0];
+
+  const displayName = firstName
+  ? firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+  : user.email;
+
+  const [rawInvoices, rawClients] = await Promise.all([
+    apiClient.get<InvoiceOut[]>("/api/invoices/").catch(() => []),
+    apiClient.get<ClientOut[]>("/api/clients").catch(() => []),
+  ]);
+
+  const clientMap = new Map(
+    rawClients.map((client) => [
+      client.id,
+      {
+        company: client.company_name,
+        contactPerson: client.contact_person || "—",
+      },
+    ])
+  );
+
+  const recentInvoices = rawInvoices.map((inv) => {
+    const client = clientMap.get(inv.client_id);
+    return {
+      id: inv.invoice_no,
+      company: client?.company || "Unknown Client",
+      clientName: client?.contactPerson || "—",
+      date: inv.issue_date,
+      dueDate: inv.due_date || "—",
+      amount: `Rs. ${Number(inv.grand_total).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
+      status: inv.status,
+    };
+  });
+
+  const formattedDate = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
   return (
     <div className="space-y-8 pb-12">
       
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Welcome Clare !</h1>
-          <p className="text-muted-foreground mt-1">Thursday, May 2026</p>
+          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Welcome, {displayName} !</h1>
+          <p className="text-muted-foreground mt-1">{formattedDate}</p>
         </div>
 
         <div className="flex items-center gap-4">
@@ -62,15 +114,9 @@ export default function DashboardPage() {
 
       {/* Recent Invoices Table Section */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
-        <div className="px-6 py-5 border-b border-border/50">
-          <h3 className="text-base font-medium text-foreground">Recent Invoices</h3>
-        </div>
-        
-        {/* Render your existing DataTable component */}
-        <DataTable 
-          columns={recentInvoicesColumns} 
-          data={recentInvoicesData} 
-        />
+      
+        {/* Recent Invoices Table Section */}
+        <RecentInvoicesTable invoices={recentInvoices} />
       </div>
 
     </div>

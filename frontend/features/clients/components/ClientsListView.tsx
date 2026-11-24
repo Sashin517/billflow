@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ClientGrid from "@/features/clients/components/ClientGrid";
 import Pagination from "@/components/shared/Pagination";
+import { Button } from "@/components/ui/button";
 
 export interface ClientCardItem {
   id: number;
@@ -77,6 +78,13 @@ export default function ClientsListView({
               className="pl-10 pr-4 h-11 bg-input border-border text-sm"
             />
           </div>
+          {/* <Button
+            variant="outline"
+            className="group h-11 px-6 !bg-input border !border-border text-primary hover:!bg-secondary hover:text-white shrink-0"
+          >
+            <Filter className="w-4 h-4 mr-2 text-primary group-hover:text-white transition-colors" />
+            Filters
+          </Button> */}
         </div>
       </div>
 
