@@ -19,7 +19,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  getBusinessTheme,
   saveBusinessTheme,
   uploadBusinessLogo,
   deleteBusinessLogo,
@@ -75,39 +74,6 @@ export default function BusinessThemeForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const localPreviewRef = useRef<string | null>(null);
-
-  // Load saved theme from DB on mount if initialData was not passed by parent
-  useEffect(() => {
-    if (initialData !== undefined) return;
-
-    let active = true;
-    (async () => {
-      try {
-        const data = await getBusinessTheme();
-        if (!active || !data) return;
-
-        const hasSaved = Boolean(data.letterhead_color || data.logo_path);
-        const loadedColor = data.letterhead_color || "#E0A753";
-        const loadedLogo = data.logo_path || null;
-
-        setHasExistingTheme(hasSaved);
-        setSavedSnapshot({
-          letterhead_color: loadedColor,
-          logo_path: loadedLogo,
-        });
-        setHexColor(loadedColor);
-        setPreviewUrl(loadedLogo);
-        setShowPreview(Boolean(loadedLogo));
-        setIsEditing(!hasSaved);
-      } catch {
-        // Keep editable defaults if fetch fails
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [initialData]);
 
   useEffect(() => {
     return () => {
@@ -438,7 +404,10 @@ export default function BusinessThemeForm({
                         src={previewUrl}
                         alt="Company Logo Preview"
                         onError={(e) => {
-                          if (localPreviewRef.current && e.currentTarget.src !== localPreviewRef.current) {
+                          if (
+                            localPreviewRef.current &&
+                            e.currentTarget.src !== localPreviewRef.current
+                          ) {
                             e.currentTarget.src = localPreviewRef.current;
                           }
                         }}
