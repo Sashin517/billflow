@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import Scanner from "@/components/Scanner";
 
 const LIQUID_GLASS_SURFACE =
-  "bg-gradient-to-br from-white/[0.11] via-white/[0.04] to-white/[0.02] backdrop-blur-2xl border border-white/[0.12] shadow-[inset_0_1px_1px_rgba(255,255,255,0.22),0_24px_60px_rgba(0,0,0,0.65)]";
+
+"bg-gradient-to-br from-white/[0.11] via-white/[0.04] to-white/[0.02] backdrop-blur-2xl border border-white/[0.12] shadow-[inset_0_1px_1px_rgba(255,255,255,0.22),0_24px_60px_rgba(0,0,0,0.65)]";
 
 export default function HeroSection() {
   return (
@@ -72,32 +73,32 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Responsive Liquid Glass Bridge locked to the exact corner intersection */}
+            {/* Seamless Liquid Glass Bridge */}
             <div
               aria-hidden="true"
               style={{ ["--r" as string]: "62px" }}
               className="hidden lg:block pointer-events-none absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-[calc(var(--r)*2)] h-[calc(var(--r)*2)] z-20"
             >
-              {/* Concave glass fill using 4-corner radial mask intersection */}
               <div
-                className="w-full h-full bg-white/[0.07] backdrop-blur-2xl"
+                className="w-full h-full bg-white/[0.05] backdrop-blur-2xl"
                 style={{
                   maskImage: [
-                    "radial-gradient(circle var(--r) at 0 0, transparent 98.5%, black 100%)",
-                    "radial-gradient(circle var(--r) at 100% 0, transparent 98.5%, black 100%)",
-                    "radial-gradient(circle var(--r) at 0 100%, transparent 98.5%, black 100%)",
-                    "radial-gradient(circle var(--r) at 100% 100%, transparent 98.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 0 0, transparent 99.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 100% 0, transparent 99.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 0 100%, transparent 99.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 100% 100%, transparent 99.5%, black 100%)",
                   ].join(", "),
                   maskComposite: "intersect",
                   WebkitMaskImage: [
-                    "radial-gradient(circle var(--r) at 0 0, transparent 98.5%, black 100%)",
-                    "radial-gradient(circle var(--r) at 100% 0, transparent 98.5%, black 100%)",
-                    "radial-gradient(circle var(--r) at 0 100%, transparent 98.5%, black 100%)",
-                    "radial-gradient(circle var(--r) at 100% 100%, transparent 98.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 0 0, transparent 99.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 100% 0, transparent 99.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 0 100%, transparent 99.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 100% 100%, transparent 99.5%, black 100%)",
                   ].join(", "),
                   WebkitMaskComposite: "source-in",
                 }}
               />
+    
 
               {/* Subtle concave edge highlights matching the card borders */}
               <svg
