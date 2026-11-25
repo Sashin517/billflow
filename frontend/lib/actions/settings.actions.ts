@@ -14,7 +14,7 @@ const FASTAPI_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 export interface PhoneItem {
   number: string;
   type: string;
-  customLabel?: string | null;
+  customLabel?: string;
 }
 
 export interface TaxOrChargeOut {
