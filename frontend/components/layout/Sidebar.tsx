@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -67,10 +68,17 @@ export default function Sidebar() {
         isCollapsed ? "w-20" : "w-64"
       )}
     >
-      <div className="h-20 flex items-center justify-between px-6 border-b border-border/50">
+      <div className="h-20 flex items-center justify-between px-4 border-b border-border/50">
         {!isCollapsed && (
-          <div className="w-10 h-10 bg-primary text-primary-foreground font-extrabold flex items-center justify-center rounded-md shrink-0">
-            BF
+          <div className="h-7 w-7 overflow-hidden flex items-center justify-center shrink-0">
+            <Image
+              src="/images/logo.svg"
+              alt="Logo"
+              width={48}
+              height={48}
+              className="w-full h-full object-contain scale-[1.8]"
+              priority
+            />
           </div>
         )}
         <button 

@@ -1,8 +1,11 @@
-export default function PlaceholderPage() {
+import Navbar from "@/features/landing/components/Navbar";
+import HeroSection from "@/features/landing/components/HeroSection";
+
+export default function HomePage() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold text-primary">Page Loaded</h1>
-      <p className="text-muted-foreground">UI coming soon.</p>
-    </div>
+    <main className="min-h-screen bg-black text-white">
+      <Navbar />
+      <HeroSection />
+    </main>
   );
 }
