@@ -126,7 +126,7 @@ export default function HeroSection() {
             >
               <div className="relative w-full max-w-[380px] overflow-hidden rounded-t-[32px] border border-white/[0.08] shadow-2xl">
                 <Image
-                  src="/images/hero-invoice2.png"
+                  src="/images/hero-invoice.png"
                   alt="BillFlow Invoice Preview"
                   width={700}
                   height={560}

@@ -11,9 +11,40 @@ const FASTAPI_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 // 1. BUSINESS PROFILE + TAXES + CHARGES
 // ==========================================
 
-export async function getBusinessProfile() {
+export interface PhoneItem {
+  number: string;
+  type: string;
+  customLabel?: string | null;
+}
+
+export interface TaxOrChargeOut {
+  id: number;
+  name: string;
+  value: number | string;
+  value_type: "percentage" | "fixed";
+  is_default: boolean;
+}
+
+export interface ProfileOut {
+  id: number;
+  user_id: number;
+  business_name: string;
+  street_address?: string | null;
+  city?: string | null;
+  state_province?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+  contact_phones: PhoneItem[];
+  email?: string | null;
+  website?: string | null;
+  tax_number?: string | null;
+  taxes: TaxOrChargeOut[];
+  charges: TaxOrChargeOut[];
+}
+
+export async function getBusinessProfile(): Promise<ProfileOut | null> {
   try {
-    return await apiClient.get<any>("/api/settings/profile");
+    return await apiClient.get<ProfileOut>("/api/settings/profile");
   } catch (error) {
     if (error instanceof Error && error.message.includes("404")) {
       return null;
