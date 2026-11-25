@@ -96,7 +96,7 @@ export default function Navbar() {
             >
               Login
             </Link>
-            <Link href="/invoices/new" onClick={() => setMobileOpen(false)}>
+            <Link href="/signup" onClick={() => setMobileOpen(false)}>
               <Button className="bg-primary hover:bg-primary-hover text-primary-foreground font-medium h-10 px-5 rounded-full">
                 Get Started Free
               </Button>

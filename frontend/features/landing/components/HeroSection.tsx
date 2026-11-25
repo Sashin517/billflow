@@ -55,10 +55,10 @@ export default function HeroSection() {
             </p>
           </div>
 
-          {/* TOP-RIGHT: Dashboard Liquid Glass Showcase + Middle Connector */}
-          <div className="relative">
+          {/* TOP-RIGHT: Dashboard Liquid Glass Showcase + Liquid Bridge */}
+          <div className="relative h-full">
             <div
-              className={`relative z-10 rounded-[62px] p-[30px] ${LIQUID_GLASS_SURFACE}`}
+              className={`relative z-10 h-full flex items-center rounded-[62px] p-[30px] ${LIQUID_GLASS_SURFACE}`}
             >
               <div className="relative w-full overflow-hidden rounded-[32px] border border-white/[0.08] bg-[#0B0B0B] shadow-2xl">
                 <Image
@@ -72,33 +72,47 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Interconnected Liquid Glass Concave Bridge (Desktop Only) */}
+            {/* Responsive Liquid Glass Bridge locked to the exact corner intersection */}
             <div
               aria-hidden="true"
-              className="hidden lg:block pointer-events-none absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-[124px] h-[124px] z-20"
+              style={{ ["--r" as string]: "62px" }}
+              className="hidden lg:block pointer-events-none absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-[calc(var(--r)*2)] h-[calc(var(--r)*2)] z-20"
             >
-              {/* Glass fill clipped strictly between the two 62px corner arcs */}
+              {/* Concave glass fill using 4-corner radial mask intersection */}
               <div
                 className="w-full h-full bg-white/[0.07] backdrop-blur-2xl"
                 style={{
-                  clipPath:
-                    "path('M 62 0 C 62 34 34 62 0 62 A 62 62 0 0 1 62 124 C 62 90 90 62 124 62 A 62 62 0 0 1 62 0 Z')",
+                  maskImage: [
+                    "radial-gradient(circle var(--r) at 0 0, transparent 98.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 100% 0, transparent 98.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 0 100%, transparent 98.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 100% 100%, transparent 98.5%, black 100%)",
+                  ].join(", "),
+                  maskComposite: "intersect",
+                  WebkitMaskImage: [
+                    "radial-gradient(circle var(--r) at 0 0, transparent 98.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 100% 0, transparent 98.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 0 100%, transparent 98.5%, black 100%)",
+                    "radial-gradient(circle var(--r) at 100% 100%, transparent 98.5%, black 100%)",
+                  ].join(", "),
+                  WebkitMaskComposite: "source-in",
                 }}
               />
-              {/* Concave hairline glass borders matching the outer boxes */}
+
+              {/* Subtle concave edge highlights matching the card borders */}
               <svg
                 viewBox="0 0 124 124"
                 fill="none"
                 className="absolute inset-0 w-full h-full"
               >
                 <path
-                  d="M 62 0.5 C 62 34 34 62 0.5 62"
-                  stroke="rgba(255,255,255,0.16)"
+                  d="M 62 0.5 A 61.5 61.5 0 0 1 0.5 62"
+                  stroke="rgba(255,255,255,0.14)"
                   strokeWidth="1"
                 />
                 <path
-                  d="M 62 123.5 C 62 90 90 62 123.5 62"
-                  stroke="rgba(255,255,255,0.16)"
+                  d="M 62 123.5 A 61.5 61.5 0 0 1 123.5 62"
+                  stroke="rgba(255,255,255,0.14)"
                   strokeWidth="1"
                 />
               </svg>
@@ -108,7 +122,7 @@ export default function HeroSection() {
           {/* BOTTOM-LEFT: Invoice Preview Liquid Glass Showcase */}
           <div className="relative">
             <div
-              className={`relative z-10 rounded-[62px] px-[30px] pt-[30px] h-full flex items-center justify-center ${LIQUID_GLASS_SURFACE}`}
+              className={`relative z-10 rounded-[62px] rounded-b-[36px] md:rounded-b-[62px]  px-[30px] pt-[30px] h-full flex items-center justify-center ${LIQUID_GLASS_SURFACE}`}
             >
               <div className="relative w-full max-w-[380px] overflow-hidden rounded-t-2xl border border-white/[0.08] shadow-2xl">
                 <Image
@@ -116,7 +130,7 @@ export default function HeroSection() {
                   alt="BillFlow Invoice Preview"
                   width={700}
                   height={560}
-                  className="w-full h-auto block object-cover"
+                  className="w-auto h-full block object-cover"
                   priority
                 />
               </div>
