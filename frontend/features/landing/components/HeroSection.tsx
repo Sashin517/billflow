@@ -41,11 +41,13 @@ export default function HeroSection() {
             <h1 className="text-4xl sm:text-5xl lg:text-[62px] font-semibold tracking-tight leading-[1.08] text-white">
                 Simplify Your
                 <br />
-                Invoicing.
+                Invoicing. 
                 <br />
-                Master Your
+                Track Payments.
                 <br />
-                <span className="text-primary">BillFlow.</span>
+                Powered by
+                <br />
+                <span className="text-primary">BillFlow</span>
             </h1>
 
             <p className="mt-8 lg:mt-10 text-base sm:text-lg text-white/80 font-normal">
