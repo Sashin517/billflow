@@ -23,6 +23,16 @@ export default async function InvoiceCreatorPage() {
       "—",
     email: client.email || "—",
     phone: client.contact_number || "—",
+    billingAddress:
+    [
+      client.street_address,
+      client.city,
+      client.state_province,
+      client.postal_code,
+      client.country,
+    ]
+      .filter(Boolean)
+      .join(", ") || "—",
     initial: (client.company_name?.[0] || "?").toUpperCase(),
   }));
 

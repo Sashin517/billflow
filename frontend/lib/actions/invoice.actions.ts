@@ -81,6 +81,7 @@ export async function createInvoice(payload: InvoicePayload): Promise<{
   try {
     const data = await apiClient.post<InvoiceOut>("/api/invoices/", payload);
     revalidatePath("/invoices");
+    revalidatePath("/dashboard");
     return { success: true, data };
   } catch (err) {
     return {

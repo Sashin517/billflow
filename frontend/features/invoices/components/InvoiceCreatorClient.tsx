@@ -1,5 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import {
+  createInvoice,
+  type InvoicePayload,
+  type InvoiceStatus,
+  type AppliedRule,
+} from "@/lib/actions/invoice.actions";
+import { toast } from "sonner";
 import { useState, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -17,6 +25,7 @@ export interface InvoiceClientOption {
   contactName: string;
   email: string;
   phone: string;
+  billingAddress?: string;
   initial: string;
 }
 
@@ -42,9 +51,11 @@ export default function InvoiceCreatorClient({
 
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Colombo",
-  }); // YYYY-MM-DD
+  });
 
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const methods = useForm({
     defaultValues: {
@@ -58,12 +69,103 @@ export default function InvoiceCreatorClient({
     },
   });
 
-  const handleSaveInvoice = (status: "Draft" | "Paid" | "Pending" | "Overdue") => {
+  const handleSaveInvoice = (status: InvoiceStatus) => {
     methods.handleSubmit(async (formData) => {
+      setSaveError(null);
+
+      // Basic validation before posting
+      const selectedClient = clients.find((c) => c.company === formData.client);
+      if (!selectedClient) {
+        toast.error("Please select a client before saving.");
+        return;
+      }
+
+      const invoiceNo = formData.invoiceId?.trim();
+      if (!invoiceNo) {
+        toast.error("Please enter an Invoice ID.");
+        return;
+      }
+
+      const validItems = (formData.items || [])
+        .filter((row: any) => row.name?.trim() !== "")
+        .map((row: any) => {
+          const qty = parseFloat(row.qty) || 0;
+          const rate = parseFloat(row.rate) || 0;
+          return {
+            item: row.name.trim(),
+            quantity: qty,
+            rate,
+            amount: Number((qty * rate).toFixed(2)),
+          };
+        });
+
+      if (validItems.length === 0) {
+        toast.error("Please add at least one item.");
+        return;
+      }
+
+      // Calculate subtotal, applied taxes, applied charges, and grand total
+      const subtotal = Number(
+        validItems.reduce((sum: number, i: any) => sum + i.amount, 0).toFixed(2)
+      );
+
+      const selectedTaxIds: number[] = formData.selectedTaxIds || [];
+      const selectedChargeIds: number[] = formData.selectedChargeIds || [];
+
+      const toAppliedRule = (rule: TaxOrChargeOut): AppliedRule => {
+        const val = Number(rule.value) || 0;
+        const amount =
+          rule.value_type === "percentage" ? (subtotal * val) / 100 : val;
+        return {
+          name: rule.name,
+          value: val,
+          type: rule.value_type,
+          amount: Number(amount.toFixed(2)),
+        };
+      };
+
+      const applied_taxes = taxes
+        .filter((t) => selectedTaxIds.includes(t.id))
+        .map(toAppliedRule);
+
+      const applied_charges = charges
+        .filter((c) => selectedChargeIds.includes(c.id))
+        .map(toAppliedRule);
+
+      const tax_total = Number(
+        applied_taxes.reduce((sum, t) => sum + Number(t.amount), 0).toFixed(2)
+      );
+      const charge_total = Number(
+        applied_charges.reduce((sum, c) => sum + Number(c.amount), 0).toFixed(2)
+      );
+      const grand_total = Number((subtotal + tax_total + charge_total).toFixed(2));
+
+      // Build payload matching InvoicePayload
+      const payload: InvoicePayload = {
+        client_id: selectedClient.id,
+        invoice_no: invoiceNo,
+        issue_date: formData.invoiceDate,
+        due_date: formData.dueDate || null,
+        status,
+        subtotal,
+        applied_taxes,
+        tax_total,
+        applied_charges,
+        charge_total,
+        grand_total,
+        items: validItems,
+      };
+
+      // Post to FastAPI via server action
       setIsSaving(true);
       try {
-        // TODO: call your createInvoice server action here with { ...formData, status }
-        console.log("Saving invoice to DB:", { ...formData, status });
+        const res = await createInvoice(payload);
+        if (!res.success) {
+          toast.error(res.error || "Failed to save invoice.");
+          return;
+        }
+        toast.success(`Invoice saved as ${status}!`);
+        router.push("/invoices");
       } finally {
         setIsSaving(false);
       }
@@ -116,6 +218,11 @@ export default function InvoiceCreatorClient({
             ${isCollapsed ? "w-0 opacity-0 border-none" : "w-[45%] opacity-100 pr-6"}
           `}
         >
+        {saveError && (
+        <div className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {saveError}
+        </div>
+        )}
         <InvoiceForm
             clients={clients}
             taxes={taxes}
@@ -160,7 +267,7 @@ export default function InvoiceCreatorClient({
               </div>
             )}
             <Button
-              className="bg-primary hover:bg-primary-hover text-primary-foreground font-medium h-11 px-6"
+              className="bg-primary rounded-full px-6 h-11 hover:bg-primary-hover text-primary-foreground font-medium"
               onClick={printInvoice}
             >
               Generate Invoice
@@ -173,6 +280,8 @@ export default function InvoiceCreatorClient({
                 clients={clients}
                 logoUrl={logoUrl}
                 themeColor={themeColor}
+                taxes={taxes}
+                charges={charges}   
             />
 
           <div className="flex items-center w-full justify-center my-6 h-11">

@@ -2,8 +2,13 @@
 
 import { useFormContext } from "react-hook-form";
 import { Building2 } from "lucide-react";
-import { type ProfileOut } from "@/lib/actions/settings.actions";
+import {
+  type ProfileOut,
+  type TaxOrChargeOut,
+} from "@/lib/actions/settings.actions";
 import { type InvoiceClientOption } from "./InvoiceCreatorClient";
+
+
 
 interface InvoicePreviewProps {
   previewRef: React.RefObject<HTMLDivElement | null>;
@@ -11,7 +16,15 @@ interface InvoicePreviewProps {
   clients?: InvoiceClientOption[];
   logoUrl?: string | null;
   themeColor?: string | null;
+  taxes?: TaxOrChargeOut[];
+  charges?: TaxOrChargeOut[];
 }
+
+const formatRs = (amount: number) =>
+  `Rs. ${amount.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
 export default function InvoicePreview({
   previewRef,
@@ -19,6 +32,8 @@ export default function InvoicePreview({
   clients = [],
   logoUrl,
   themeColor,
+  taxes = [],
+  charges = [],
 }: InvoicePreviewProps) {
   const { watch } = useFormContext();
 
@@ -27,12 +42,40 @@ export default function InvoicePreview({
   const dueDate = watch("dueDate");
   const clientName = watch("client");
   const items = watch("items") || [];
+  const selectedTaxIds: number[] = watch("selectedTaxIds") || [];
+  const selectedChargeIds: number[] = watch("selectedChargeIds") || [];
 
   const selectedClient = clients.find((c) => c.company === clientName);
   const contactPerson =
     selectedClient && selectedClient.contactName !== "—"
       ? selectedClient.contactName
       : "";
+  const billingAddress =
+    selectedClient && selectedClient.billingAddress !== "—"
+      ? selectedClient.billingAddress
+      : "";
+
+  // Live totals calculation (matches TaxSelector)
+  const subtotal = items.reduce((sum: number, item: any) => {
+    const qty = parseFloat(item.qty) || 0;
+    const rate = parseFloat(item.rate) || 0;
+    return sum + qty * rate;
+  }, 0);
+
+  const calcRuleAmount = (rule: TaxOrChargeOut) => {
+    const val = Number(rule.value) || 0;
+    return rule.value_type === "percentage" ? (subtotal * val) / 100 : val;
+  };
+
+  const activeTaxes = taxes.filter((t) => selectedTaxIds.includes(t.id));
+  const activeCharges = charges.filter((c) => selectedChargeIds.includes(c.id));
+
+  const totalTaxes = activeTaxes.reduce((sum, t) => sum + calcRuleAmount(t), 0);
+  const totalCharges = activeCharges.reduce(
+    (sum, c) => sum + calcRuleAmount(c),
+    0
+  );
+  const grandTotal = subtotal + totalTaxes + totalCharges;
 
   const addressLine2 = [
     profile?.city,
@@ -109,7 +152,7 @@ export default function InvoicePreview({
             </p>
             <p className="max-w-[250px] mt-2">
               <span className="font-semibold text-gray-800">Billing Address:</span>{" "}
-              62/A Gamameda road, Mathammana, Minuwangoda, Western, 11550
+              {billingAddress || "---"}
             </p>
           </div>
           <div className="text-sm space-y-1 text-right">
@@ -167,31 +210,32 @@ export default function InvoicePreview({
           <div className="w-[300px] text-sm space-y-2 text-gray-700">
             <div className="flex justify-between">
               <p>Subtotal</p>
-              <p>Rs. 24, 081.63</p>
+              <p>{formatRs(subtotal)}</p>
             </div>
-            <div className="flex justify-between">
-              <p>SSCL (2%)</p>
-              <p>Rs. 602.04</p>
-            </div>
-            <div className="flex justify-between">
-              <p>VAT (18%)</p>
-              <p>Rs. 4,816.33</p>
-            </div>
-            <div className="flex justify-between">
-              <p>Service Charge (10%)</p>
-              <p>Rs. 4,816.33</p>
-            </div>
-            {/* <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between">
-              <p>Total Charges</p>
-              <p>Rs. 29,500.00</p>
-            </div>
-            <div className="flex justify-between">
-              <p>Total Payment</p>
-              <p>-Rs. 29,500.00</p>
-            </div> */}
+
+            {activeTaxes.map((tax) => (
+              <div key={`preview-tax-${tax.id}`} className="flex justify-between">
+                <p>
+                  {tax.name} (
+                  {tax.value_type === "percentage" ? `${tax.value}%` : "Fixed"})
+                </p>
+                <p>{formatRs(calcRuleAmount(tax))}</p>
+              </div>
+            ))}
+
+            {activeCharges.map((charge) => (
+              <div key={`preview-charge-${charge.id}`} className="flex justify-between">
+                <p>
+                  {charge.name} (
+                  {charge.value_type === "percentage" ? `${charge.value}%` : "Fixed"})
+                </p>
+                <p>{formatRs(calcRuleAmount(charge))}</p>
+              </div>
+            ))}
+
             <div className="border-t border-black pt-2 mt-2 flex justify-between font-bold text-black text-base">
               <p>GRAND TOTAL:</p>
-              <p>Rs 0.00</p>
+              <p>{formatRs(grandTotal)}</p>
             </div>
           </div>
         </div>
