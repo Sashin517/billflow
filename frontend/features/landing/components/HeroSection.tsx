@@ -124,7 +124,7 @@ export default function HeroSection() {
             <div
               className={`relative z-10 rounded-[62px] rounded-b-[36px] md:rounded-b-[62px]  px-[30px] pt-[30px] h-full flex items-center justify-center ${LIQUID_GLASS_SURFACE}`}
             >
-              <div className="relative w-full max-w-[380px] overflow-hidden rounded-t-2xl border border-white/[0.08] shadow-2xl">
+              <div className="relative w-full max-w-[380px] overflow-hidden rounded-t-[32px] border border-white/[0.08] shadow-2xl">
                 <Image
                   src="/images/hero-invoice2.png"
                   alt="BillFlow Invoice Preview"
