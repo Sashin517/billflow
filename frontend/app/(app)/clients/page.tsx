@@ -5,7 +5,7 @@ import ClientsListView from "@/features/clients/components/ClientsListView";
 
 export default async function ClientsPage() {
   const rawClients = await apiClient
-    .get<ClientOut[]>("/api/clients")
+    .get<ClientOut[]>("/api/clients/")
     .catch(() => []);
 
   const clients = rawClients.map((client) => ({
