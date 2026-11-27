@@ -31,6 +31,20 @@ export default function HeroSection() {
         {/* Soft edge & bottom fade so it blends into the rest of the page */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black" />
       </div>
+      {/* 3 Concentric Circles Ambient Glow (Uniform Blur 37.7px) */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-12 z-0 flex items-start justify-center top-[-200px] opacity-25 blur-[37.7px]"
+            >
+              <div className="relative w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] lg:w-[560px] lg:h-[560px] flex items-center justify-center">
+                {/* Outer Gold Circle */}
+                <div className="absolute inset-0 rounded-full bg-[#E2A84B]" />
+                {/* Middle Cream Circle */}
+                <div className="absolute w-[74%] h-[74%] rounded-full bg-[#F6E4C5]" />
+                {/* Inner Off-White Circle */}
+                <div className="absolute w-[54%] h-[54%] rounded-full bg-[#FFF9F0]" />
+              </div>
+            </div>
 
       {/* Hero Bento Content */}
       <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-10">
