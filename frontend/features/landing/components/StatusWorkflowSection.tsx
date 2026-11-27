@@ -17,7 +17,7 @@ export default function StatusWorkflowSection() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
             {/* LEFT: Status Table Preview */}
             <div className="lg:col-span-6">
-            <div className="relative w-full aspect-[4/3] overflow-hidden rounded-[24px] lg:rounded-[32px] border border-white/[0.5] shadow-2xl">
+            <div className="relative w-full aspect-[4/3] overflow-hidden rounded-[24px] lg:rounded-[32px] border border-accent-foreground/[0.4] shadow-2xl">
                 <Image
                 src="/images/status-workflow.png"
                 alt="BillFlow Invoice Status Tracking"

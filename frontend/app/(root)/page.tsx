@@ -3,7 +3,8 @@ import HeroSection from "@/features/landing/components/HeroSection";
 import FeaturesSection from "@/features/landing/components/FeaturesSection";
 import ComplianceSection from "@/features/landing/components/ComplianceSection";
 import StatusWorkflowSection from "@/features/landing/components/StatusWorkflowSection";
-
+import CtaSection from "@/features/landing/components/CtaSection";
+import Footer from "@/features/landing/components/Footer";
 
 export default function HomePage() {
   return (
@@ -13,6 +14,8 @@ export default function HomePage() {
       <FeaturesSection />
       <ComplianceSection/>
       <StatusWorkflowSection />
+      <CtaSection />
+      <Footer />
     </main>
   );
 }

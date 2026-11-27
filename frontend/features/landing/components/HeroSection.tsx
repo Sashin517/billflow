@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Scanner from "@/components/Scanner";
+import Prism from "@/components/Prism";
 
 const LIQUID_GLASS_SURFACE = "bg-gradient-to-br from-white/[0.11] via-white/[0.04] to-white/[0.02] backdrop-blur-2xl border border-white/[0.12] shadow-[inset_0_1px_1px_rgba(255,255,255,0.22),0_24px_60px_rgba(0,0,0,0.65)]";
 
@@ -31,26 +32,43 @@ export default function HeroSection() {
         {/* Soft edge & bottom fade so it blends into the rest of the page */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black" />
       </div>
-      {/* 3 Concentric Circles Ambient Glow (Uniform Blur 37.7px) */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -inset-12 z-0 flex items-start justify-center top-[-200px] opacity-25 blur-[37.7px]"
-            >
-              <div className="relative w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] lg:w-[560px] lg:h-[560px] flex items-center justify-center">
-                {/* Outer Gold Circle */}
-                <div className="absolute inset-0 rounded-full bg-[#E2A84B]" />
-                {/* Middle Cream Circle */}
-                <div className="absolute w-[74%] h-[74%] rounded-full bg-[#F6E4C5]" />
-                {/* Inner Off-White Circle */}
-                <div className="absolute w-[54%] h-[54%] rounded-full bg-[#FFF9F0]" />
-              </div>
-            </div>
+      {/* Full-Hero Prism WebGL Layer (Layered over Scanner) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[1] opacity-55 mix-blend-screen"
+        style={{
+          maskImage:
+            "linear-gradient(to bottom, black 0%, black 75%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, black 0%, black 75%, transparent 100%)",
+        }}
+      >
+        <Prism
+          animationType="rotate"
+          timeScale={0.35}
+          height={3.5}
+          baseWidth={5.5}
+          scale={3.6}
+          hueShift={0}
+          colorFrequency={1}
+          glow={0.85}
+          colors={["#E2A84B", "#F6E4C5", "#D4AF37", "#52514D", "#FFF9F0"]}
+          saturation={1.15}
+          noise={0.02}
+          interactive
+          hoverStrength={1.5}
+          inertia={0.05}
+          intro
+          resolution={0.5}
+          lightMode={false}
+        />
+      </div>
 
       {/* Hero Bento Content */}
       <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-[44%_56%] gap-8 lg:gap-0 items-stretch">
           {/* TOP-LEFT: Headline & Trust Copy */}
-          <div className="flex flex-col justify-between lg:pr-12 lg:pb-10">
+          <div className="flex flex-col justify-between lg:pr-12 lg:py-10">
             <h1 className="text-4xl sm:text-5xl lg:text-[62px] font-semibold tracking-tight leading-[1.08] text-white">
                 Simplify Your
                 <br />
