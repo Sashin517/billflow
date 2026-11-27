@@ -10,19 +10,19 @@ export default function ComplianceSection() {
   return (
     <section
       id="compliance"
-      className="relative w-full overflow-hidden bg-black py-20 lg:py-32"
+      className="relative w-full overflow-hidden bg-black py-20 lg:py-32 px-6 sm:px-10 lg:px-12"
     >
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-10">
+      <div className="relative z-10 max-w-[1400px] mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
           {/* LEFT: Copy & CTA */}
-          <div className="lg:col-span-5 flex flex-col items-start">
+          <div className="lg:col-span-6 flex flex-col items-start">
             <h2 className="text-4xl sm:text-5xl lg:text-[54px] font-medium tracking-tight leading-[1.1] text-white">
               Stay Compliant,
               <br />
               <span className="text-primary">Effortlessly</span>
             </h2>
 
-            <p className="mt-6 text-sm sm:text-base text-white/75 leading-relaxed max-w-[440px]">
+            <p className="mt-6 text-sm sm:text-base text-white/75 leading-relaxed max-w-[480px]">
               Save Taxes, Charges, and Business profiles once.
               <br />
               BillFlow automatically handles VAT, SSCL, and standard
@@ -39,7 +39,7 @@ export default function ComplianceSection() {
           </div>
 
           {/* RIGHT: 3-Circle Glow + Gradient Frame + Preview Image */}
-          <div className="lg:col-span-7 relative flex items-center justify-center">
+          <div className="lg:col-span-6 relative flex items-center justify-center">
             {/* 3 Concentric Circles Ambient Glow (Uniform Blur 37.7px) */}
             <div
               aria-hidden="true"
@@ -55,20 +55,16 @@ export default function ComplianceSection() {
               </div>
             </div>
 
-            {/* Liquid Glass Picture Frame */}
-            <div
-              className={`relative z-10 w-full rounded-[28px] sm:rounded-[36px] lg:rounded-[44px] p-4 sm:p-6 lg:p-7 ${LIQUID_GLASS_SURFACE}`}
-            >
-              <div className="relative w-full overflow-hidden rounded-[18px] sm:rounded-[24px] lg:rounded-[28px] border border-white/[0.08] bg-[#0B0B0B] shadow-2xl">
-                <Image
-                  src="/images/compliance-preview.png"
-                  alt="BillFlow Tax & Compliance Invoice Creator"
-                  width={1200}
-                  height={760}
-                  className="w-full h-auto block object-cover"
-                  priority
-                />
-              </div>
+            {/* Preview Image */}
+            <div className="relative z-10 w-full aspect-[4/3] overflow-hidden rounded-[24px] lg:rounded-[32px] border border-white/[0.5] shadow-2xl">
+            <Image
+                src="/images/compliance-preview.png"
+                alt="BillFlow Tax & Compliance Invoice Creator"
+                fill
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover object-top"
+                priority
+            />
             </div>
           </div>
         </div>
