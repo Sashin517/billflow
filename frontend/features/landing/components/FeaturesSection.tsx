@@ -31,7 +31,7 @@ const features = [
 export default function FeaturesSection() {
   return (
     <section id="features" className="w-full bg-black">
-      <div className={`relative z-10 h-full flex items-center rounded-full ${LIQUID_GLASS_SURFACE} sm:rounded-[48px] lg:rounded-[60px] py-14 px-6 sm:px-10 lg:py-24 lg:px-12`}>
+      <div className={`relative z-10 h-full flex items-center rounded-[62px] rounded-md-full ${LIQUID_GLASS_SURFACE} sm:rounded-[48px] lg:rounded-[60px] py-14 px-6 sm:px-10 lg:py-24 lg:px-12`}>
         <div className="max-w-[1400px] mx-auto">
           {/* Section Heading */}
           <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-normal tracking-tight text-white leading-tight mb-8 lg:mb-11">
