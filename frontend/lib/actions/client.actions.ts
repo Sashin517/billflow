@@ -48,7 +48,7 @@ function mapFormToPayload(input: ClientFormInput) {
 
 export async function getClients(): Promise<ClientOut[]> {
   try {
-    return await apiClient.get<ClientOut[]>("/api/clients");
+    return await apiClient.get<ClientOut[]>("/api/clients/");
   } catch {
     return [];
   }
@@ -61,7 +61,7 @@ export async function createClient(input: ClientFormInput): Promise<{
 }> {
   try {
     const data = await apiClient.post<ClientOut>(
-      "/api/clients",
+      "/api/clients/",
       mapFormToPayload(input)
     );
     revalidatePath("/clients");

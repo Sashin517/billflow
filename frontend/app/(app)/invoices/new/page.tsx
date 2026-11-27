@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function InvoiceCreatorPage() {
   const [rawClients, profile, theme] = await Promise.all([
-    apiClient.get<ClientOut[]>("/api/clients").catch(() => []),
+    apiClient.get<ClientOut[]>("/api/clients/").catch(() => []),
     getBusinessProfile().catch(() => null),
     getBusinessTheme().catch(() => null),
   ]);

@@ -1,7 +1,10 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import {
+  clientSchema,
+  type ClientFormValues,
+} from "@/lib/validations/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 
@@ -33,22 +36,6 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/actions/client.actions";
 
-
-// Form Validation Schema
-const clientSchema = z.object({
-  companyName: z.string().min(1, "Company Name is required"),
-  contactPerson: z.string().optional(),
-  position: z.string().optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  contactNumber: z.string().optional(),
-  streetAddress: z.string().optional(),
-  city: z.string().optional(),
-  stateProvince: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
-});
-
-type ClientFormValues = z.infer<typeof clientSchema>;
 
 export default function AddClientDialog() {
   const [open, setOpen] = useState(false);

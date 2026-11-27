@@ -21,7 +21,7 @@ export default async function DashboardPage() {
       .get<{ full_name?: string; email?: string }>("/api/auth/me")
       .catch(() => null),
     apiClient.get<InvoiceOut[]>("/api/invoices/").catch(() => []),
-    apiClient.get<ClientOut[]>("/api/clients").catch(() => []),
+    apiClient.get<ClientOut[]>("/api/clients/").catch(() => []),
   ]);
 
   const firstName = user?.full_name?.trim().split(/\s+/)[0];
