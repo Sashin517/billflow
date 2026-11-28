@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import {
   createInvoice,
+  updateInvoice,
+  type InvoiceOut,
   type InvoicePayload,
   type InvoiceStatus,
   type AppliedRule,
@@ -17,7 +19,10 @@ import { jsPDF } from "jspdf";
 
 import InvoiceForm from "@/features/invoices/components/InvoiceForm";
 import InvoicePreview from "@/features/invoices/components/InvoicePreview";
-import { type ProfileOut, type TaxOrChargeOut } from "@/lib/actions/settings.actions";
+import {
+  type ProfileOut,
+  type TaxOrChargeOut,
+} from "@/lib/actions/settings.actions";
 
 export interface InvoiceClientOption {
   id: number;
@@ -36,6 +41,7 @@ interface InvoiceCreatorClientProps {
   profile?: ProfileOut | null;
   logoUrl?: string | null;
   themeColor?: string | null;
+  initialInvoice?: InvoiceOut | null;
 }
 
 export default function InvoiceCreatorClient({
@@ -45,7 +51,9 @@ export default function InvoiceCreatorClient({
   profile,
   logoUrl,
   themeColor,
+  initialInvoice,
 }: InvoiceCreatorClientProps) {
+  const isEditMode = Boolean(initialInvoice);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const documentRef = useRef<HTMLDivElement>(null);
 
@@ -57,15 +65,50 @@ export default function InvoiceCreatorClient({
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Map existing invoice data into form default values when in Edit mode
+  const initialClientCompany = initialInvoice
+    ? clients.find((c) => c.id === initialInvoice.client_id)?.company || ""
+    : "";
+
+  const initialItems =
+    initialInvoice && initialInvoice.items?.length > 0
+      ? initialInvoice.items.map((row) => ({
+          name: row.item || "",
+          qty: String(row.quantity ?? ""),
+          rate: String(row.rate ?? ""),
+          amount: String(row.amount ?? ""),
+        }))
+      : [{ name: "", qty: "", rate: "", amount: "" }];
+
+  const initialTaxIds = initialInvoice
+    ? taxes
+        .filter((t) =>
+          (initialInvoice.applied_taxes || []).some(
+            (applied) => applied.name === t.name
+          )
+        )
+        .map((t) => t.id)
+    : taxes.filter((t) => t.is_default).map((t) => t.id);
+
+  const initialChargeIds = initialInvoice
+    ? charges
+        .filter((c) =>
+          (initialInvoice.applied_charges || []).some(
+            (applied) => applied.name === c.name
+          )
+        )
+        .map((c) => c.id)
+    : charges.filter((c) => c.is_default).map((c) => c.id);
+
   const methods = useForm({
     defaultValues: {
-        invoiceDate: today,
-        dueDate: "",
-        invoiceId: "",
-        client: "",
-        items: [{ name: "", qty: "", rate: "", amount: "" }],
-        selectedTaxIds: taxes.filter((t) => t.is_default).map((t) => t.id),
-        selectedChargeIds: charges.filter((c) => c.is_default).map((c) => c.id),
+      invoiceDate: initialInvoice?.issue_date || today,
+      dueDate: initialInvoice?.due_date || "",
+      invoiceId: initialInvoice?.invoice_no || "",
+      client: initialClientCompany,
+      items: initialItems,
+      selectedTaxIds: initialTaxIds,
+      selectedChargeIds: initialChargeIds,
     },
   });
 
@@ -73,7 +116,6 @@ export default function InvoiceCreatorClient({
     methods.handleSubmit(async (formData) => {
       setSaveError(null);
 
-      // Basic validation before posting
       const selectedClient = clients.find((c) => c.company === formData.client);
       if (!selectedClient) {
         toast.error("Please select a client before saving.");
@@ -104,7 +146,6 @@ export default function InvoiceCreatorClient({
         return;
       }
 
-      // Calculate subtotal, applied taxes, applied charges, and grand total
       const subtotal = Number(
         validItems.reduce((sum: number, i: any) => sum + i.amount, 0).toFixed(2)
       );
@@ -140,7 +181,6 @@ export default function InvoiceCreatorClient({
       );
       const grand_total = Number((subtotal + tax_total + charge_total).toFixed(2));
 
-      // Build payload matching InvoicePayload
       const payload: InvoicePayload = {
         client_id: selectedClient.id,
         invoice_no: invoiceNo,
@@ -156,15 +196,22 @@ export default function InvoiceCreatorClient({
         items: validItems,
       };
 
-      // Post to FastAPI via server action
       setIsSaving(true);
       try {
-        const res = await createInvoice(payload);
+        const res =
+          isEditMode && initialInvoice
+            ? await updateInvoice(initialInvoice.id, payload)
+            : await createInvoice(payload);
+
         if (!res.success) {
           toast.error(res.error || "Failed to save invoice.");
           return;
         }
-        toast.success(`Invoice saved as ${status}!`);
+        toast.success(
+          isEditMode
+            ? `Invoice updated as ${status}!`
+            : `Invoice saved as ${status}!`
+        );
         router.push("/invoices");
       } finally {
         setIsSaving(false);
@@ -203,7 +250,8 @@ export default function InvoiceCreatorClient({
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("invoice.pdf");
+      const fileName = methods.getValues("invoiceId") || "invoice";
+      pdf.save(`${fileName}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
@@ -218,18 +266,19 @@ export default function InvoiceCreatorClient({
             ${isCollapsed ? "w-0 opacity-0 border-none" : "w-[45%] opacity-100 pr-6"}
           `}
         >
-        {saveError && (
-        <div className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {saveError}
-        </div>
-        )}
-        <InvoiceForm
+          {saveError && (
+            <div className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {saveError}
+            </div>
+          )}
+          <InvoiceForm
             clients={clients}
             taxes={taxes}
             charges={charges}
             onSave={handleSaveInvoice}
             isSaving={isSaving}
-        />
+            isEditMode={isEditMode}
+          />
         </div>
 
         {/* SPLITTER BUTTON ANCHOR */}
@@ -253,7 +302,9 @@ export default function InvoiceCreatorClient({
         <div className="flex-1 flex flex-col relative pl-6 transition-all duration-500 overflow-y-auto no-scrollbar">
           <div className="flex items-center justify-between mb-6 h-11">
             <h2 className="text-xl font-medium text-foreground">
-              {isCollapsed ? "Preview Invoice: INV-2026-0001" : "Live Preview"}
+              {isCollapsed
+                ? `Preview Invoice: ${methods.watch("invoiceId") || "Draft"}`
+                : "Live Preview"}
             </h2>
             {isCollapsed && (
               <div className="flex items-center gap-3 text-sm text-foreground">
@@ -274,15 +325,15 @@ export default function InvoiceCreatorClient({
             </Button>
           </div>
 
-            <InvoicePreview
-                previewRef={documentRef}
-                profile={profile}
-                clients={clients}
-                logoUrl={logoUrl}
-                themeColor={themeColor}
-                taxes={taxes}
-                charges={charges}   
-            />
+          <InvoicePreview
+            previewRef={documentRef}
+            profile={profile}
+            clients={clients}
+            logoUrl={logoUrl}
+            themeColor={themeColor}
+            taxes={taxes}
+            charges={charges}
+          />
 
           <div className="flex items-center w-full justify-center my-6 h-11">
             <div className="flex items-center gap-3 text-sm text-foreground">

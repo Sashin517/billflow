@@ -37,6 +37,7 @@ interface InvoiceFormProps {
   charges: TaxOrChargeOut[];
   onSave: (status: SaveInvoiceStatus) => void;
   isSaving?: boolean;
+  isEditMode?: boolean;
 }
 
 export default function InvoiceForm({
@@ -45,6 +46,7 @@ export default function InvoiceForm({
   charges,
   onSave,
   isSaving = false,
+  isEditMode = false,
 }: InvoiceFormProps) {
   const { control, watch } = useFormContext();
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
@@ -79,7 +81,8 @@ export default function InvoiceForm({
   return (
     <div className="space-y-8 pb-12">
       <h1 className="text-2xl font-semibold text-foreground">
-        Create Invoice {currentInvoiceId ? `- INV - ${currentInvoiceId}` : ""}
+        {isEditMode ? "Edit Invoice" : "Create Invoice"}{" "}
+        {currentInvoiceId ? `- INV - ${currentInvoiceId}` : ""}
       </h1>
 
       {/* Invoice Details */}

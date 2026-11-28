@@ -13,12 +13,16 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageSize?: number;
+  onRowClick?: (row: TData) => void;
+  isRowSelected?: (row: TData) => boolean;
 }
 
 export default function DataTable<TData, TValue>({
   columns,
   data,
   pageSize = 9,
+  onRowClick,
+  isRowSelected,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -60,21 +64,34 @@ export default function DataTable<TData, TValue>({
 
           <tbody className="text-foreground bg-card divide-y divide-border/50">
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="hover:bg-secondary/20 transition-colors"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="py-4 px-6 whitespace-nowrap">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const selected = isRowSelected?.(row.original) ?? false;
+                return (
+                  <tr
+                    key={row.id}
+                    onClick={() => onRowClick?.(row.original)}
+                    className={`transition-colors ${
+                      onRowClick ? "cursor-pointer" : ""
+                    } ${
+                      selected
+                        ? "bg-primary/10 hover:bg-primary/15"
+                        : "hover:bg-secondary/20"
+                    }`}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className="py-4 px-6 whitespace-nowrap"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan={columns.length} className="h-24 text-center">
