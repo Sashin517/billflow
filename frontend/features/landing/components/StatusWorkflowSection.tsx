@@ -16,17 +16,31 @@ export default function StatusWorkflowSection() {
         <div className="max-w-[1400px] mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
             {/* LEFT: Status Table Preview */}
-            <div className="lg:col-span-6">
-            <div className="relative w-full aspect-[4/3] overflow-hidden rounded-[24px] lg:rounded-[32px] border border-accent-foreground/[0.4] shadow-2xl">
-                <Image
-                src="/images/status-workflow.png"
-                alt="BillFlow Invoice Status Tracking"
-                fill
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-cover object-top"
-                priority
-                />
-            </div>
+            <div className="lg:col-span-6 relative flex items-center justify-center">
+               {/* 3 Concentric Circles Ambient Glows*/}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -inset-12 z-0 flex items-center justify-center opacity-25 blur-[37.7px]"
+                >
+                  <div className="relative w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] lg:w-[560px] lg:h-[560px] flex items-center justify-center">
+                    {/* Outer Gold Circle */}
+                    <div className="absolute inset-0 rounded-full bg-[#E2A84B]" />
+                    {/* Middle Cream Circle */}
+                    <div className="absolute w-[74%] h-[74%] rounded-full bg-[#F6E4C5]" />
+                    {/* Inner Off-White Circle */}
+                    <div className="absolute w-[54%] h-[54%] rounded-full bg-[#FFF9F0]" />
+                  </div>
+                </div>                
+              <div className="relative w-full aspect-[4/3] overflow-hidden rounded-[24px] lg:rounded-[32px] border border-accent-foreground/[0.4] shadow-2xl">
+                  <Image
+                  src="/images/status-workflow.png"
+                  alt="BillFlow Invoice Status Tracking"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  className="object-cover object-top"
+                  priority
+                  />
+              </div>
             </div>
 
             {/* RIGHT: Copy & CTA (Matches ComplianceSection typography) */}

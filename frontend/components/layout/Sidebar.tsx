@@ -74,8 +74,8 @@ export default function Sidebar() {
             <Image
               src="/images/logo.svg"
               alt="Logo"
-              width={48}
-              height={48}
+              width={32}
+              height={32}
               className="w-full h-full object-contain scale-[1.8]"
               priority
             />

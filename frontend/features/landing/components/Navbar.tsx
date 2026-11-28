@@ -7,11 +7,11 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navLinks = [
+  { name: "Home", href: "#" },
   { name: "Features", href: "#features" },
-  { name: "Pricing", href: "#pricing" },
-  { name: "Integrations", href: "#integrations" },
-  { name: "Security", href: "#security" },
-  { name: "FAQ", href: "#faq" },
+  { name: "Compliance", href: "#compliance" },
+  { name: "Workflows", href: "#workflows" },
+  { name: "Contact", href: "#cta" },
 ];
 
 export default function Navbar() {

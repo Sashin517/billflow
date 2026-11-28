@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export default function CtaSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-black py-24 lg:py-36 px-6 sm:px-10 lg:px-12">
+    <section id="cta" className="relative w-full overflow-hidden bg-black py-24 lg:py-36 px-6 sm:px-10 lg:px-12">
       {/* Subtle Bottom-Center Golden Ambient Glow */}
       <div
         aria-hidden="true"
