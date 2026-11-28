@@ -17,6 +17,7 @@ export default async function ClientsPage() {
     email: client.email || "—",
     phone: client.contact_number || "—",
     initial: (client.company_name?.[0] || "?").toUpperCase(),
+    raw: client,
   }));
 
   return (

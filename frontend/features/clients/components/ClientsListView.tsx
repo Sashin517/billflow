@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Filter, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ClientGrid from "@/features/clients/components/ClientGrid";
 import Pagination from "@/components/shared/Pagination";
-import { Button } from "@/components/ui/button";
+import AddClientDialog from "@/features/clients/components/AddClientDialog";
+import { type ClientOut } from "@/lib/actions/client.actions";
+import { type Client } from "@/features/clients/components/ClientCard";
 
 export interface ClientCardItem {
   id: number;
@@ -14,6 +16,7 @@ export interface ClientCardItem {
   email: string;
   phone: string;
   initial: string;
+  raw?: ClientOut;
 }
 
 interface ClientsListViewProps {
@@ -27,6 +30,7 @@ export default function ClientsListView({
 }: ClientsListViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingClient, setEditingClient] = useState<ClientOut | null>(null);
 
   const filteredClients = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -59,6 +63,13 @@ export default function ClientsListView({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleEditClient = (client: Client) => {
+    const match = clients.find((c) => c.id === client.id);
+    if (match?.raw) {
+      setEditingClient(match.raw);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -78,22 +89,23 @@ export default function ClientsListView({
               className="pl-10 pr-4 h-11 bg-input border-border text-sm"
             />
           </div>
-          {/* <Button
-            variant="outline"
-            className="group h-11 px-6 !bg-input border !border-border text-primary hover:!bg-secondary hover:text-white shrink-0"
-          >
-            <Filter className="w-4 h-4 mr-2 text-primary group-hover:text-white transition-colors" />
-            Filters
-          </Button> */}
         </div>
       </div>
 
-      <ClientGrid clients={paginatedClients} />
+      <ClientGrid clients={paginatedClients} onEdit={handleEditClient} />
 
       <Pagination
         currentPage={safePage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
+      />
+
+      <AddClientDialog
+        initialClient={editingClient}
+        open={Boolean(editingClient)}
+        onOpenChange={(open) => {
+          if (!open) setEditingClient(null);
+        }}
       />
     </>
   );
