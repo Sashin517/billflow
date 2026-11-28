@@ -5,7 +5,7 @@ export default function InvoiceCreatorLoading() {
     <div className="flex h-[calc(100vh-2rem)] w-full overflow-hidden relative">
       
       {/* Left Side: Form Panel Skeleton */}
-      <div className="w-[45%] flex-shrink-0 border-r border-border pr-6 overflow-y-auto pb-12">
+      <div className="w-[45%] flex-shrink-0 border-r border-border pr-6 overflow-y-auto pb-12 no-scrollbar">
         <div className="space-y-8">
           
           {/* Main Title */}
