@@ -56,13 +56,16 @@ export default function Footer() {
           {/* Brand & Copyright Column */}
           <div className="col-span-2 md:col-span-6 lg:col-span-5 flex flex-col items-start">
             <Link href="/" className="inline-flex items-center gap-3">
-              <Image
-                src="/images/logo.svg"
-                alt="BillFlow Logo"
-                width={36}
-                height={36}
-                className="w-9 h-9 object-contain"
-              />
+              <div className="h-7 w-7 overflow-hidden flex items-center justify-center shrink-0">
+                  <Image
+                    src="/images/logo.svg"
+                    alt="Logo"
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-contain scale-[1.8]"
+                    priority
+                  />
+              </div>
               <span className="text-xl font-semibold tracking-tight text-white">
                 BillFlow
               </span>
