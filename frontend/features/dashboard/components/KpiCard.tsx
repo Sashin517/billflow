@@ -5,7 +5,7 @@ interface KpiCardProps {
   title: string;
   subtitle: string;
   amount: string;
-  trend: string;
+  trend?: string | null;
   trendLabel: string;
   trendDirection?: TrendDirection;
 }
@@ -57,12 +57,14 @@ export default function KpiCard({
       {/* Footer / Values */}
       <div className="relative z-10 flex flex-col items-end justify-end mt-auto gap-2">
         <div className="flex items-center gap-4">
-          <div
-            className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${badge}`}
-          >
-            <Icon className="w-3 h-3" />
-            {trend}
-          </div>
+          {trend && (
+            <div
+              className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${badge}`}
+            >
+              <Icon className="w-3 h-3" />
+              {trend}
+            </div>
+          )}
           <span className="text-[32px] font-medium tracking-tight text-foreground">
             {amount}
           </span>

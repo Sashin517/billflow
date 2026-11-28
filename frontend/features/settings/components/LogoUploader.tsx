@@ -532,7 +532,7 @@ export default function BusinessThemeForm({
             <Button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="px-8 bg-primary hover:bg-primary-hover text-primary-foreground"
+              className="rounded-full px-6 h-10 bg-primary hover:bg-primary-hover text-primary-foreground"
             >
               <Pencil className="w-4 h-4 mr-2" />
               Edit
@@ -545,7 +545,7 @@ export default function BusinessThemeForm({
                   variant="outline"
                   disabled={isPending || uploadStatus === "uploading"}
                   onClick={handleCancel}
-                  className="px-8 bg-transparent hover:bg-secondary"
+                  className="rounded-full px-6 h-10 bg-transparent hover:bg-secondary"
                 >
                   Cancel
                 </Button>
@@ -558,7 +558,7 @@ export default function BusinessThemeForm({
                   (hasExistingTheme && !isDirty)
                 }
                 onClick={handleSave}
-                className="px-8 bg-primary hover:bg-primary-hover text-primary-foreground"
+                className="rounded-full px-6 h-10 bg-primary hover:bg-primary-hover text-primary-foreground"
               >
                 {isPending ? "Saving..." : "Save"}
               </Button>

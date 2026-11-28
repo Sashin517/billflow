@@ -15,7 +15,7 @@ export interface InvoiceMetricInput {
 
 export interface KpiMetricResult {
   amount: string;
-  trend: string;
+  trend: string | null;
   trendDirection: TrendDirection;
   trendLabel: string;
 }
@@ -183,13 +183,13 @@ export function calculateDashboardKpis(
     return {
       totalRevenue: {
         amount: formatRs(totals.revenue),
-        trend: "0%",
+        trend: null,
         trendDirection: "neutral",
         trendLabel: "All time",
       },
       outstandingBalance: {
         amount: formatRs(totals.outstanding),
-        trend: "0%",
+        trend: null,
         trendDirection: "neutral",
         trendLabel: "All time",
       },

@@ -389,14 +389,14 @@ export default function AddClientDialog({
                 variant="ghost"
                 disabled={isPending}
                 onClick={() => handleOpenChange(false)}
-                className="text-foreground hover:bg-secondary hover:text-foreground"
+                className="text-foreground hover:bg-secondary hover:text-foreground rounded-full px-6 h-10"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isPending}
-                className="bg-primary hover:bg-primary-hover text-primary-foreground font-medium"
+                className="bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-full px-6 h-10"
               >
                 {isPending
                   ? "Saving..."

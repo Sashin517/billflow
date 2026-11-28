@@ -43,6 +43,32 @@ export default function ClientCard({
       setDeleteConfirmOpen(false);
     });
   };
+  
+  const hasEmail = Boolean(client.email && client.email !== "—");
+  const hasPhone = Boolean(client.phone && client.phone !== "—");
+
+  const getWhatsAppUrl = (phone: string) => {
+    const digits = phone.replace(/\D/g, "");
+    // Convert local Sri Lankan 07x / 011 numbers to 94... for wa.me
+    const normalized = digits.startsWith("0") ? `94${digits.slice(1)}` : digits;
+    return `https://wa.me/${normalized}`;
+  };
+
+  const handleCopyDetails = async () => {
+    const lines = [
+      `Company: ${client.company}`,
+      client.contactName !== "—" ? `Contact: ${client.contactName}` : null,
+      hasEmail ? `Email: ${client.email}` : null,
+      hasPhone ? `Phone: ${client.phone}` : null,
+    ].filter(Boolean);
+
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      toast.success("Client details copied to clipboard.");
+    } catch {
+      toast.error("Failed to copy client details.");
+    }
+  };
 
   return (
     <>
@@ -89,16 +115,48 @@ export default function ClientCard({
 
         {/* Bottom Actions Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-border/50 bg-card">
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            type="button"
+            title={hasEmail ? `Email ${client.email}` : "No email available"}
+            onClick={() => {
+              if (!hasEmail) return toast.error("No email address available.");
+              window.location.href = `mailto:${client.email}`;
+            }}
+            className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
             <Mail className="w-[18px] h-[18px]" />
           </button>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
+
+          <button
+            type="button"
+            title={hasPhone ? `Call ${client.phone}` : "No phone available"}
+            onClick={() => {
+              if (!hasPhone) return toast.error("No phone number available.");
+              window.location.href = `tel:${client.phone}`;
+            }}
+            className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
             <Phone className="w-[18px] h-[18px]" />
           </button>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
+
+          <button
+            type="button"
+            title={hasPhone ? `WhatsApp ${client.phone}` : "No phone available"}
+            onClick={() => {
+              if (!hasPhone) return toast.error("No phone number available.");
+              window.open(getWhatsAppUrl(client.phone), "_blank", "noopener,noreferrer");
+            }}
+            className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
             <MessageSquare className="w-[18px] h-[18px]" />
           </button>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
+
+          <button
+            type="button"
+            title="Copy client details"
+            onClick={handleCopyDetails}
+            className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
             <Copy className="w-[18px] h-[18px]" />
           </button>
         </div>

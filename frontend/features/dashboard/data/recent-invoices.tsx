@@ -62,15 +62,15 @@ export const recentInvoicesColumns: ColumnDef<RecentInvoice>[] = [
       );
     },
   },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: () => (
-      <div className="flex items-center gap-3 text-muted-foreground">
-        <button className="hover:text-primary transition-colors"><PenLine className="w-4 h-4" /></button>
-        <button className="hover:text-primary transition-colors"><Eye className="w-4 h-4" /></button>
-        <button className="hover:text-primary transition-colors"><MoreVertical className="w-4 h-4" /></button>
-      </div>
-    ),
-  },
+  // {
+  //   id: "actions",
+  //   header: "Actions",
+  //   cell: () => (
+  //     <div className="flex items-center gap-3 text-muted-foreground">
+  //       <button className="hover:text-primary transition-colors"><PenLine className="w-4 h-4" /></button>
+  //       <button className="hover:text-primary transition-colors"><Eye className="w-4 h-4" /></button>
+  //       <button className="hover:text-primary transition-colors"><MoreVertical className="w-4 h-4" /></button>
+  //     </div>
+  //   ),
+  // },
 ];

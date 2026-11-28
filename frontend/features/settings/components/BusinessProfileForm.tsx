@@ -530,7 +530,7 @@ export default function BusinessProfileForm({
               <Button
                 type="button"
                 onClick={() => setIsEditing(true)}
-                className="px-8 bg-primary hover:bg-primary-hover text-primary-foreground"
+                className="rounded-full px-6 h-10 bg-primary hover:bg-primary-hover text-primary-foreground"
               >
                 <Pencil className="w-4 h-4 mr-2" />
                 Edit
@@ -546,7 +546,7 @@ export default function BusinessProfileForm({
                       form.reset(savedSnapshot);
                       setIsEditing(false);
                     }}
-                    className="px-8 bg-transparent hover:bg-secondary"
+                    className="rounded-full px-6 h-10 bg-transparent hover:bg-secondary"
                   >
                     Cancel
                   </Button>
@@ -554,7 +554,7 @@ export default function BusinessProfileForm({
                 <Button
                   type="submit"
                   disabled={isPending || (hasExistingProfile && !isDirty)}
-                  className="px-8 bg-primary hover:bg-primary-hover text-primary-foreground"
+                  className="rounded-full px-6 h-10 bg-primary hover:bg-primary-hover text-primary-foreground"
                 >
                   {isPending ? "Saving..." : "Save"}
                 </Button>
