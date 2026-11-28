@@ -217,7 +217,7 @@ export default function InvoiceForm({
           variant="outline"
           disabled={isSaving}
           onClick={() => onSave("Draft")}
-          className="bg-transparent border-white text-white hover:bg-white/10 hover:text-white font-medium rounded-full px-6 h-11"
+          className="bg-transparent border-white! text-white hover:bg-white/10! hover:text-white! font-medium rounded-full px-6 h-11"
         >
           Save as Draft
         </Button>
