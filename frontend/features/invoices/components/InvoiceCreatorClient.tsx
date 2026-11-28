@@ -321,7 +321,7 @@ export default function InvoiceCreatorClient({
               className="bg-primary rounded-full px-6 h-11 hover:bg-primary-hover text-primary-foreground font-medium"
               onClick={printInvoice}
             >
-              Generate Invoice
+              Download PDF
             </Button>
           </div>
 
